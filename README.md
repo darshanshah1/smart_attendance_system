@@ -24,26 +24,19 @@ It provides real-time detection, recognition, activity tracking, and automated b
 
 ## Tech Stack
 
-- **Backend**: Flask
-- **Face Recognition**: InsightFace, FAISS
-- **ML Models**: scikit-learn (KNN, MLP)
-- **Database**: CSV-based logs
-- **Scheduling**: APScheduler
-- **Utilities**: Pandas, Joblib, OpenCV
+- **Backend**: Flask  
+- **Face Recognition**: InsightFace, FAISS  
+- **ML Models**: scikit-learn (KNN, MLP)  
+- **Database**: CSV-based logs  
+- **Scheduling**: APScheduler  
+- **Utilities**: Pandas, Joblib, OpenCV  
 
 ---
 
-## Installation
+## Installation & Run
+
+You can run the system using the provided script:
 
 ```bash
-# Clone repository
-git clone https://github.com/your-username/your-repo.git
-cd your-repo
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate   # Linux/Mac
-venv\Scripts\activate      # Windows
-
-# Install dependencies
-pip install -r requirements.txt
+chmod +x run.sh
+./run.sh
