@@ -1,0 +1,9 @@
+numpy==1.26.4
+opencv-python==4.8.1.78
+pandas
+joblib
+numba
+insightface==0.7.3
+scikit-learn
+faiss-gpu
+apscheduler
