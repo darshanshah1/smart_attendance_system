@@ -131,10 +131,23 @@ Older logs are moved into a dated folder inside DATA_BACKUP_PATH.
 .
 ├── app.py                     # Main Flask app
 ├── run.sh                     # Setup and run script
-├── base/                      # Core modules
-│   ├── c_recognize.py         # Face recognition logic
-│   ├── t_trigger_backup.py    # Backup trigger logic
-│   └── utils/                 # Utility functions and constants
+├── config.ini
+├── requirements.txt
+├── base/
+│   ├── 0_get_videos.py
+│   ├── a_prepare_data.py
+│   ├── b_train_all.py
+│   ├── c_recognize.py
+│   ├── d_recognition_loop.py
+│   ├── e_camera_checking.py
+│   ├── __init__.py
+│   ├── t_trigger_backup.py
+│   └── utils/
+│       ├── constants.py
+│       ├── functions.py
+│       ├── model_manager.py
+│       └── security.py
+│       └── __init__.py
 ├── templates/                 # HTML templates
 └── static/                    # Static files (known_faces, models, etc.)
 ```
