@@ -92,7 +92,49 @@ ACTIVITIES COUNT = 17
 ```
 This reflects real-time employee status:
 
-IN → currently inside.
+> IN → currently inside.
 OUT → detected exit.
 ABSENT → no entry or exit recorded for the day.
 ACTIVITIES COUNT → total activity records processed.
+
+## Data Logging
+All recognition events are appended into CSV logs. Example entries:
+```bash
+522    input    91.32%    2025-09-26 15:25:17+05:30
+750    input    87.14%    2025-09-26 15:25:59+05:30
+675    input    86.95%    2025-09-26 15:32:33+05:30
+007    output   87.73%    2025-09-26 15:33:45+05:30
+669    output   85.49%    2025-09-26 15:36:53+05:30
+669    input    86.29%    2025-09-26 15:37:32+05:30
+188    output   86.64%    2025-09-26 15:39:53+05:30
+606    output   88.42%    2025-09-26 15:40:56+05:30
+739    output   87.63%    2025-09-26 15:42:44+05:30
+663    output   87.95%    2025-09-26 15:43:41+05:30
+602    input    90.36%    2025-09-26 15:45:06+05:30
+440    input    86.37%    2025-09-26 15:49:09+05:30
+739    input    88.27%    2025-09-26 15:53:01+05:30
+361    output   88.82%    2025-09-26 16:12:59+05:30
+009    input    85.17%    2025-09-26 16:19:19+05:30
+262    input    85.78%    2025-09-26 16:20:53+05:30
+361    input    85.68%    2025-09-26 16:28:50+05:30
+```
+Each row contains:
+<Employee ID> | <Direction> | <Confidence> | <Timestamp>
+
+##Backup Policy
+
+Keeps logs for the last N days (configured in constants.BACKUP_DAYS).
+Older logs are moved into a dated folder inside DATA_BACKUP_PATH.
+
+## Folder Structure
+```php
+.
+├── app.py                     # Main Flask app
+├── run.sh                     # Setup and run script
+├── base/                      # Core modules
+│   ├── c_recognize.py         # Face recognition logic
+│   ├── t_trigger_backup.py    # Backup trigger logic
+│   └── utils/                 # Utility functions and constants
+├── templates/                 # HTML templates
+└── static/                    # Static files (known_faces, models, etc.)
+```
