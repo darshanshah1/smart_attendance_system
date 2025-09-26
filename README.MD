@@ -41,7 +41,7 @@ You can run the system using the provided script:
 chmod +x run.sh
 ./run.sh
 
-
+```
 ## Manual Installation
 ```bash
 # Clone repository
@@ -60,7 +60,7 @@ pip install onnxruntime-gpu==1.16.3 --extra-index-url https://download.pytorch.o
 
 # Run server
 flask run --host=0.0.0.0 --port=8521
-
+```
 ## API Endpoints
 
 | Endpoint                | Method | Description                          |
