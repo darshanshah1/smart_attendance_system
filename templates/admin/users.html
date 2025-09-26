@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Recognition Control Panel</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='adminResources/css/materialdesignicons.min.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='adminResources/css/vendor.bundle.base.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='adminResources/css/vendor.bundle.addons.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='adminResources/css/style.css') }}">
+    <style>
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .search-container input {
+            padding: 8px;
+            width: 100%;
+            max-width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        .pagination button, .pagination select {
+            padding: 8px 16px;
+            border: 1px solid #005282;
+            background: #fff;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .pagination button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        .pagination button.active {
+            background: #005282;
+            color: #fff;
+        }
+        .pagination select {
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+<div class="container-scroller">
+    {% include 'admin/header.html' %}
+    <div style="width:100%" class="container-fluid page-body-wrapper">
+        <div style="width:100%" class="main-panel">
+            <div class="content-wrapper">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="pagination" style="float:left">
+                        <select id="rowsPerPage" onchange="changeRowsPerPage()">
+                                <option value="10" selected>10</option>
+                                <option value="20">20</option>
+                                <option value="25">25</option>
+                            </select>
+                        </div>
+                        <div class="search-container">
+                            <input type="text" id="searchInput" placeholder="Search by Employee ID or Name" onkeyup="searchTable()">
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table" id="employeeTable">
+                                <thead>
+                                <tr>
+                                    <th>Idx</th>
+                                    <th>Employee Id</th>
+                                    <th>Name</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody id="employeeTableBody">
+                                {% for row in rows %}
+                                <tr>
+                                    <td>{{ loop.index }}.</td>
+                                    <td>{{ row.employee_id }}</td>
+                                    <td>{{ row.employee_name }}</td>
+                                    <td>
+                                        <a href="/delete-employee?employee_id={{row.employee_id}}">
+                                            <i class="mdi mdi-delete-circle"
+                                               style="font-size: 20px; color: #005282;"></i>
+                                        </a>
+                                        <a href="/edit-employee?employee_id={{row.employee_id}}">
+                                            <i class="mdi mdi-pencil-circle-outline"
+                                               style="font-size: 20px; color: #005282;"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pagination" id="pagination">
+                            <button onclick="prevPage()" id="prevButton">Previous</button>
+                            <div id="pageNumbers"></div>
+                            <button onclick="nextPage()" id="nextButton">Next</button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JS -->
+<script src="{{ url_for('static', filename='adminResources/js/vendor.bundle.base.js') }}"></script>
+<script src="{{ url_for('static', filename='adminResources/js/vendor.bundle.addons.js') }}"></script>
+<script src="{{ url_for('static', filename='adminResources/js/data-table.js') }}"></script>
+<script src="{{ url_for('static', filename='adminResources/js/template.js') }}"></script>
+
+<script>
+    const evtSource = new EventSource("/events");
+    evtSource.onmessage = function(event) {
+        if (event.data === "refresh") {
+            location.reload();
+        }
+    };
+
+    function showForm(scriptId) {
+        event.target.style.display = "none";
+        document.getElementById("form-" + scriptId).style.display = "block";
+    }
+
+    // Pagination and Search Logic
+    let currentPage = 1;
+    let rowsPerPage = 10;
+    let filteredRows = [];
+
+    function searchTable() {
+        const input = document.getElementById('searchInput').value.toLowerCase();
+        const table = document.getElementById('employeeTableBody');
+        const rows = table.getElementsByTagName('tr');
+        filteredRows = [];
+
+        for (let i = 0; i < rows.length; i++) {
+            const employeeId = rows[i].cells[1].textContent.toLowerCase();
+            const employeeName = rows[i].cells[2].textContent.toLowerCase();
+            if (employeeId.includes(input) || employeeName.includes(input)) {
+                filteredRows.push(rows[i]);
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+
+        currentPage = 1;
+        renderTable();
+    }
+
+    function renderTable() {
+        const table = document.getElementById('employeeTableBody');
+        const rows = filteredRows.length ? filteredRows : table.getElementsByTagName('tr');
+        const totalRows = rows.length;
+        const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+        // Hide all rows
+        for (let i = 0; i < rows.length; i++) {
+            rows[i].style.display = 'none';
+        }
+
+        // Show rows for current page
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        for (let i = start; i < end && i < totalRows; i++) {
+            rows[i].style.display = '';
+            // Update index based on current page
+            rows[i].cells[0].textContent = i + 1 + '.';
+        }
+
+        // Update pagination controls
+        const pageNumbers = document.getElementById('pageNumbers');
+        pageNumbers.innerHTML = '';
+        for (let i = 1; i <= totalPages; i++) {
+            const button = document.createElement('button');
+            button.textContent = i;
+            button.className = i === currentPage ? 'active' : '';
+            button.onclick = () => {
+                currentPage = i;
+                renderTable();
+            };
+            pageNumbers.appendChild(button);
+        }
+
+        document.getElementById('prevButton').disabled = currentPage === 1;
+        document.getElementById('nextButton').disabled = currentPage === totalPages;
+    }
+
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+        }
+    }
+
+    function nextPage() {
+        const totalRows = filteredRows.length ? filteredRows.length : document.getElementById('employeeTableBody').getElementsByTagName('tr').length;
+        if (currentPage < Math.ceil(totalRows / rowsPerPage)) {
+            currentPage++;
+            renderTable();
+        }
+    }
+
+    function changeRowsPerPage() {
+        rowsPerPage = parseInt(document.getElementById('rowsPerPage').value);
+        currentPage = 1;
+        renderTable();
+    }
+
+    // Initial render
+    window.onload = renderTable;
+</script>
+</body>
+</html>

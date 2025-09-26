@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Recognition Control Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='adminResources/css/materialdesignicons.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='adminResources/css/vendor.bundle.base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='adminResources/css/vendor.bundle.addons.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='adminResources/css/style.css') }}">
+</head>
+<body>
+<div class="container-scroller">
+    {% include 'admin/header.html' %}
+    <div style="width:100%" class="container-fluid page-body-wrapper">
+        <div style="width:100%" class="main-panel">
+            <div class="content-wrapper">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                <tr>
+
+                                    <th>Idx</th>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                    <th>PID</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for row in rows %}
+                                    <tr>
+                                        <td>{{ loop.index }}.</td>
+                                        <td>{{ row.name }}</td>
+                                        <td>{{ row.status }}</td>
+                                        <td>{{ row.pid }}</td>
+                                        <td>{% if loop.index == 1 %}
+                                        {% if row.status == "running" %}
+                                            <!-- Show Stop if running -->
+                                            <a href="{{ row.action_url }}">
+                                                <i class="mdi mdi-stop"
+                                                   style="font-size: 20px; color: #D90429;"></i>
+
+                                            </a>
+                                        {% else %}
+                                            <!-- Default Start link -->
+                                            <a href="javascript:void(0);"
+                                               onclick="showForm('{{ row.script_id }}')">
+                                                <i class="mdi mdi-play-circle"
+                                                   style="font-size: 20px; color: #005282;"></i>
+                                            </a>
+
+                                            <!-- Hidden form -->
+                                            <form id="form-{{ row.script_id }}"
+                                                  action="{{ row.action_url }}"
+                                                  method="get"
+                                                  style="display:none; margin-top:10px;">
+                                                <input type="text" name="n" placeholder="Employee ID"
+                                                       class="form-control mb-2" >
+                                                <input type="text" name="name" placeholder="Name"
+                                                       class="form-control mb-2" >
+                                                <button class="btn btn-primary btn-sm">Submit</button>
+                                            </form>
+                                        {% endif %}
+                                    {% else %}
+                                        <a href="{{ row.action_url }}">
+                                            {% if row.action_text == "Start" %}
+                                                <i class="mdi mdi-play-circle"
+                                                   style="font-size: 20px; color: #005282;"></i>
+                                            {% else %}
+                                                <i class="mdi mdi-stop-circle"
+                                                   style="font-size: 20px; color: #D90429;"></i>
+                                            {% endif %}
+
+                                        </a>
+                                    {% endif %}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JS -->
+<script src="{{ url_for('static', filename='adminResources/js/vendor.bundle.base.js') }}"></script>
+<script src="{{ url_for('static', filename='adminResources/js/vendor.bundle.addons.js') }}"></script>
+<script src="{{ url_for('static', filename='adminResources/js/data-table.js') }}"></script>
+<script src="{{ url_for('static', filename='adminResources/js/template.js') }}"></script>
+
+<script>
+    const evtSource = new EventSource("/events");
+    evtSource.onmessage = function(event) {
+        if (event.data === "refresh") {
+            location.reload();
+        }
+    };
+</script>
+<script>
+function showForm(scriptId) {
+    // Hide the Start link
+    event.target.style.display = "none";
+    // Show the form
+    document.getElementById("form-" + scriptId).style.display = "block";
+}
+</script>
+</body>
+</html>
